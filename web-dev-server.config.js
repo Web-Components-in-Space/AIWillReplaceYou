@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-import {legacyPlugin} from '@web/dev-server-legacy';
+import fs from 'fs';
+
+const env = JSON.parse(fs.readFileSync('aws-creds.json', 'utf-8'));
 
 const mode = process.env.MODE || 'dev';
 if (!['dev', 'prod'].includes(mode)) {
@@ -12,14 +14,22 @@ if (!['dev', 'prod'].includes(mode)) {
 }
 
 export default {
-  nodeResolve: {exportConditions: mode === 'dev' ? ['development'] : []},
-  preserveSymlinks: true,
   plugins: [
-    legacyPlugin({
-      polyfills: {
-        // Manually imported in index.html file
-        webcomponents: false,
+    {
+      name: 'environment',
+      serve(context) {
+        if (context.path === '/environment.js') {
+          return `export default { 
+              label: "${env.label}",
+              bucket: "${env.bucket}",
+              album: "${env.album}",
+              region: "${env.region}",
+              poolid: "${env.poolid}",
+           }`;
+        }
       },
-    }),
+    },
   ],
+  nodeResolve: {exportConditions: mode === 'dev' ? ['development'] : []},
+  preserveSymlinks: true
 };

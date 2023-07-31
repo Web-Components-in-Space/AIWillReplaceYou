@@ -7,7 +7,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
-    "outDir": "./",
+    "outDir": "./src",
     "rootDir": "./src",
     "strict": true,
     "noUnusedLocals": true,
