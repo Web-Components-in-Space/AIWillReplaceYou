@@ -1,17 +1,15 @@
+import { Settings } from '../settings';
 
 declare const AWS: any;
 
-// @ts-ignore
-import env from '/environment.js';
-
 export const pushToS3 = (data: Blob, name: string) => {
-  const albumPhotosKey = encodeURIComponent(env.album) + '/';
+  const albumPhotosKey = encodeURIComponent(Settings.aws.album) + '/';
   const photoKey = albumPhotosKey + name;
 
   //Bucket Configurations
-  const bucketName = env.bucket;
-  const bucketRegion = env.region;
-  const IdentityPoolId = env.poolid;
+  const bucketName = Settings.aws.bucket;
+  const bucketRegion = Settings.aws.region;
+  const IdentityPoolId = Settings.aws.poolid;
 
   AWS.config.update({
     region: bucketRegion,

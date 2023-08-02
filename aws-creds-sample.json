@@ -1,7 +1,0 @@
-{
-  "label": "sample credentials",
-  "bucket": "mybucket",
-  "album": "myalbum",
-  "region": "us-west-1",
-  "poolid": "us-west-1:somelongid"
-}

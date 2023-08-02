@@ -14,13 +14,9 @@ import { BodySegmentationVideo, SegmentationEvent } from 'bodysegmentation-video
 import { transitionStyles } from './transitions.css.js';
 import { appStyles } from './app.css.js';
 import { CountDownTimer } from './countdowntimer';
-import { animations } from "./animations.css";
-import { pushToS3 } from "./utils/upload";
-
-// @ts-ignore
-import environment from '/environment.js';
-
-console.log(environment);
+import { animations } from './animations.css';
+import { pushToS3 } from './utils/upload';
+import { loadSettingsJSON, Settings } from "./settings";
 
 @customElement('replaceyou-app')
 export class App extends LitElement {
@@ -212,7 +208,7 @@ export class App extends LitElement {
     const maskImg = await event.toBinaryMask(
       {r:0, g:0, b:0, a: 0},
       {r:0, g:0, b:0, a: 255},
-      true, .1);
+      Settings.segmentation.drawContour, Settings.segmentation.foregroundThreshold);
     this.lastMask = maskImg;
     if (segmenter.canvasContext) {
       const texture = this.stateMachine.currentState.name === 'generate image' ? undefined : this.imageFill;
@@ -233,6 +229,19 @@ export class App extends LitElement {
     await this.stateMachine.next();
   }
 
+  async activateCamera() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      'audio': false,
+      'video': {
+        width: Settings.segmentation.cameraWidth,
+        height: Settings.segmentation.cameraHeight
+      }
+    });
+    if (this.video) {
+      this.video.stream = stream;
+    }
+  }
+
   onUpdateCountdownTimer(event: Event) {
     if ((event.target as CountDownTimer).currentTime > 0) {
       this.stateMachine.countdownSeconds = (event.target as CountDownTimer).currentTime;
@@ -242,21 +251,29 @@ export class App extends LitElement {
 
   constructor() {
     super();
+
+    loadSettingsJSON().then(() => {
+      this.addKeyListeners();
+      this.requestUpdate();
+    });
+  }
+
+  protected addKeyListeners() {
     document.addEventListener('keydown', (event) => {
-      if (event.key === ' ' && !this.keysPressed[event.key]) {
+      if (event.key === Settings.application.trigger && !this.keysPressed[event.key]) {
         this.keysPressed[event.key] = true;
         this.onTrigger('down');
       }
     });
     document.addEventListener('keyup', (event) => {
       delete this.keysPressed[event.key];
-      if (event.key === ' ') {
+      if (event.key === Settings.application.trigger) {
         this.onTrigger('up');
       }
 
       if (event.key === 'c' && this.video?.videoElement && this.lastMask) {
         // Debug one time render to download
-        loadGenAIImage(this.stateMachine.currentPrompt, 250).then((fill) => {
+        loadGenAIImage(this.stateMachine.currentPrompt).then((fill) => {
           createFinalOutput(this.video?.videoElement as HTMLVideoElement, this.lastMask as ImageData, fill as OffscreenCanvas);
         });
       }
@@ -268,13 +285,17 @@ export class App extends LitElement {
   }
 
   override render() {
+    if (!Settings) {
+      return;
+    }
     const state = this.stateMachine.currentState;
     const classes = { isLoading: state.id === 'generate' };
     return html`
       <bodysegmentation-video 
+            ${Settings.segmentation.interval !==0 ? html`segmentinterval=${Settings.segmentation.interval}` : undefined}
             ?hidevideo=${state.hideVideo} 
-            ?active=${state.segmentationActive} 
-            useCamera
+            ?active=${state.segmentationActive}
+            @ready=${this.activateCamera}
             @onSegment=${this.onSegment}>
         <div id="loading-bg" class=${classMap(classes)}></div>
       </bodysegmentation-video>

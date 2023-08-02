@@ -1,4 +1,5 @@
 import { Bounds } from 'bodysegmentation-video/baseplayer';
+import { Settings } from "../settings";
 
 const TAGLINE_IMG: HTMLImageElement = new Image();
 TAGLINE_IMG.src = '/assets/iwasreplaced.png';
@@ -16,7 +17,7 @@ export const createFinalOutput = (video: HTMLVideoElement, mask: ImageData, text
 }
 
 export const render = (ctx: CanvasRenderingContext2D, videoSource: HTMLVideoElement, maskImg: ImageData, texture: OffscreenCanvas | undefined, dest: Bounds) => {
-  const maskBlurAmount = 10;
+  const maskBlurAmount = Settings.segmentation.blur;
   if (ctx && maskImg) {
     const mask = new OffscreenCanvas(videoSource.videoWidth, videoSource.videoHeight);
     mask.width = maskImg.width;

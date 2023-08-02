@@ -85,7 +85,7 @@ export class StateMachine {
       name: 'attract',
       id: 'attract',
       inputPromptActive: false,
-      segmentationActive: true,
+      segmentationActive: false,
       hideVideo: false,
       showStatus: true,
       useCountdown: false,
