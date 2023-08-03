@@ -32,7 +32,14 @@ export const loadGenAIImage = (prompt: string): Promise<OffscreenCanvas> => {
       const textureCanvas = new OffscreenCanvas(Settings.stablediffusion.width, Settings.stablediffusion.height);
       texture.onload = () => {
         const ctx = textureCanvas.getContext('2d');
-        ctx?.drawImage(texture, 0, 0, Settings.stablediffusion.width, Settings.stablediffusion.height);
+        for (let i=0; i < Math.ceil(Settings.segmentation.cameraWidth / Settings.stablediffusion.patternWidth); i++) {
+          for (let j=0; j < Math.ceil(Settings.segmentation.cameraHeight / Settings.stablediffusion.patternHeight); j++) {
+            ctx?.drawImage(texture, 0, 0,
+              Settings.stablediffusion.width, Settings.stablediffusion.height,
+              j * Settings.stablediffusion.patternWidth, i * Settings.stablediffusion.patternHeight,
+              Settings.stablediffusion.patternWidth, Settings.stablediffusion.patternHeight);
+          }
+        }
         resolve(textureCanvas);
       };
       texture.src = 'data:image/png;base64,' + imageData as string;

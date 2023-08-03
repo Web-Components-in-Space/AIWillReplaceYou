@@ -17,7 +17,7 @@ export interface State {
 export class StateMachine {
   public currentPrompt = '';
 
-  public currentFilename: string = '';
+  public currentFilename = '';
 
   public countdownSeconds?: number;
 

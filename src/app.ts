@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-import { render, loadGenAIImage, createFinalOutput } from "./utils";
+import { render, loadGenAIImage, createFinalOutput, download } from "./utils";
 import { State, StateMachine } from './states';
 
 import './promptinput';
@@ -64,6 +64,8 @@ export class App extends LitElement {
 
   protected silentTimer?: number;
 
+  protected pendingSave = false;
+
   protected stateMachine = new StateMachine(
     this.onStateChange.bind(this),
     this.onTransition.bind(this));
@@ -114,18 +116,6 @@ export class App extends LitElement {
         break;
 
       case 'preview':
-        if (isTransitioningIn) {
-          const startTime = new Date('July 29 2023');
-          const now = new Date();
-          this.stateMachine.currentFilename = Math.floor((Number(now) - Number(startTime)) / 1000).toString(16);
-        }
-        if (!isTransitioningIn && this.video?.canvas) {
-          this.video.canvas.toBlob( (data ) => {
-            if (data) {
-              pushToS3(data, `${this.stateMachine.currentFilename}.jpg`);
-            }
-          })
-        }
         break;
 
       case 'end':
@@ -212,8 +202,28 @@ export class App extends LitElement {
     this.lastMask = maskImg;
     if (segmenter.canvasContext) {
       const texture = this.stateMachine.currentState.name === 'generate image' ? undefined : this.imageFill;
-      render(segmenter.canvasContext, segmenter.videoElement, maskImg, texture, segmenter.videoBounds);
+      if (this.pendingSave) {
+        this.saveOutput(maskImg);
+      } else {
+        render(segmenter.canvasContext, segmenter.videoElement, maskImg, texture, segmenter.videoBounds);
+      }
     }
+  }
+
+  saveOutput(mask: ImageData) {
+    this.pendingSave = false;
+    const social = createFinalOutput(this.video?.videoElement as HTMLVideoElement, mask, this.imageFill, this.stateMachine.currentPrompt);
+    social.toBlob( (data ) => {
+      if (data) {
+        pushToS3(data, `${this.stateMachine.currentFilename}-s.jpg`);
+      }
+    });
+    const finalimage = createFinalOutput(this.video?.videoElement as HTMLVideoElement, mask, this.imageFill, this.stateMachine.currentPrompt, true);
+    finalimage.toBlob( (data ) => {
+      if (data) {
+        pushToS3(data, `${this.stateMachine.currentFilename}.jpg`);
+      }
+    });
   }
 
   async onPrompt(event: PromptEvent) {
@@ -226,6 +236,12 @@ export class App extends LitElement {
   }
 
   async onCountdownComplete() {
+    if (this.stateMachine.currentState.id === 'pose') {
+      const startTime = new Date('August 1 2023');
+      const now = new Date();
+      this.stateMachine.currentFilename = Math.floor((Number(now) - Number(startTime)) / 1000).toString(16);
+      this.pendingSave = true;
+    }
     await this.stateMachine.next();
   }
 
@@ -273,8 +289,14 @@ export class App extends LitElement {
 
       if (event.key === 'c' && this.video?.videoElement && this.lastMask) {
         // Debug one time render to download
-        loadGenAIImage(this.stateMachine.currentPrompt).then((fill) => {
-          createFinalOutput(this.video?.videoElement as HTMLVideoElement, this.lastMask as ImageData, fill as OffscreenCanvas);
+        const samplePrompt = 'cats in space who wear pajama pants and sleep all night while partying during the day';
+        loadGenAIImage(samplePrompt).then((fill) => {
+          const canvas = createFinalOutput(this.video?.videoElement as HTMLVideoElement, this.lastMask as ImageData, fill as OffscreenCanvas, samplePrompt)
+          /*document.body.append(canvas);
+          canvas.style.zIndex = '9999';
+          canvas.style.position = 'absolute';
+          canvas.style.top = '0';*/
+          download(canvas);
         });
       }
 

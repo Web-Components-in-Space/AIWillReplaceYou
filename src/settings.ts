@@ -6,6 +6,8 @@ export interface ApplicationSettings {
       "tiling": boolean;
       "width": number;
       "height": number;
+      "patternWidth": number;
+      "patternHeight": number;
   },
   "segmentation": {
     "cameraWidth": number;
@@ -36,7 +38,9 @@ const defaultSettings = {
     "sampler": "DDIM",
     "tiling": true,
     "width": 512,
-    "height": 512
+    "height": 512,
+    "patternWidth": 128,
+    "patternHeight": 128,
   },
   "segmentation": {
     "cameraWidth": 1280,

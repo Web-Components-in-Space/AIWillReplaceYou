@@ -4,16 +4,22 @@ import { Settings } from "../settings";
 const TAGLINE_IMG: HTMLImageElement = new Image();
 TAGLINE_IMG.src = '/assets/iwasreplaced.png';
 
-export const createFinalOutput = (video: HTMLVideoElement, mask: ImageData, texture: OffscreenCanvas | undefined) => {
+export const createFinalOutput = (video: HTMLVideoElement, mask: ImageData, texture: OffscreenCanvas | undefined, prompt: string, justTheImage = false) => {
   const finalcanvas = document.createElement('canvas');
   finalcanvas.width = video.videoWidth;
-  finalcanvas.height = video.videoHeight + TAGLINE_IMG.height;
+  finalcanvas.height = justTheImage ? video.videoHeight : video.videoHeight + TAGLINE_IMG.height;
   const ctx = finalcanvas.getContext('2d') as CanvasRenderingContext2D;
   render(ctx, video, mask, texture, { width: video.videoWidth, height: video.videoHeight, x: 0, y: 0 });
   if (ctx) {
-    ctx.drawImage(TAGLINE_IMG, 0, video.videoHeight);
+    ctx.fillRect(0, video.videoHeight, finalcanvas.width, finalcanvas.height);
+    if (!justTheImage) {
+      ctx.drawImage(TAGLINE_IMG, 0, video.videoHeight);
+      ctx.fillStyle = 'white';
+      ctx.font = '26px Adobe Clean';
+      ctx.fillText(`by ${prompt}`, 20, video.videoHeight + 105, finalcanvas.width);
+    }
   }
-  download(finalcanvas);
+  return finalcanvas;
 }
 
 export const render = (ctx: CanvasRenderingContext2D, videoSource: HTMLVideoElement, maskImg: ImageData, texture: OffscreenCanvas | undefined, dest: Bounds) => {
