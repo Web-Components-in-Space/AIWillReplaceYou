@@ -16,7 +16,7 @@ export const createFinalOutput = (video: HTMLVideoElement, mask: ImageData, text
       ctx.drawImage(TAGLINE_IMG, 0, video.videoHeight);
       ctx.fillStyle = 'white';
       ctx.font = '26px Adobe Clean';
-      ctx.fillText(`by ${prompt}`, 20, video.videoHeight + 105, finalcanvas.width);
+      ctx.fillText(`by ${prompt}`, 100, video.videoHeight + 105, finalcanvas.width);
     }
   }
   return finalcanvas;

@@ -89,8 +89,8 @@ export class StateMachine {
       hideVideo: false,
       showStatus: true,
       useCountdown: false,
-      getStatusMessage: () => { return `${this.currentFilename ? `Find the last photo at <span class="prompt-text">www.aiwillreplaceyou.com/${this.currentFilename}</span>` :
-          `Photos will be available at <span class="prompt-text">www.aiwillreplaceyou.com</span>`}`; }
+      getStatusMessage: () => { return `${this.currentFilename ? `Find the last photo at <span class="prompt-text">www.aiwillreplaceu.com/${this.currentFilename}</span>` :
+          `Photos will be available at <span class="prompt-text">www.aiwillreplaceu.com</span>`}`; }
     },
     {
       name: 'prompt input',
