@@ -59,6 +59,10 @@ export const appStyles = css`
     left: 50px;
     right: 50px;
   }
+
+  :host([state="attract"]) replaceyou-promptinput {
+    opacity: 0;
+  }
   
   replaceyou-countdown-timer {
     position: absolute;
