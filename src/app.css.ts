@@ -12,7 +12,25 @@ export const appStyles = css`
   }
   
   span.prompt-text {
-    color: rgb(255,0,236)
+    color: rgb(255,0,236);
+  }
+
+  #center-messaging {
+    width: 100%;
+    position: absolute;
+    top: calc(50% - 100px);
+  }
+
+  #center-messaging span {
+    font-size: 100px;
+    color: black;
+    -webkit-background-clip: text;
+    text-align: center;
+    display: block;
+    background-image: var(--gradient);
+    font-weight: bolder;
+    -webkit-text-stroke-color: transparent;
+    -webkit-text-stroke-width: 12px;
   }
 
   #loading-bg.isLoading {
@@ -119,7 +137,7 @@ export const appStyles = css`
   #logo span {
     margin-top: 25px;
     font-weight: bolder;
-    font-size: 32px;
+    font-size: 48px;
     animation-name: fade;
     animation-timing-function: ease-in-out;
     animation-duration: 2s;

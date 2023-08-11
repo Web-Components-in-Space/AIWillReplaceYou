@@ -24,6 +24,13 @@ const requestGeneration = (prompt: string, endpoint: string) => {
   });
 }
 
+export const loadFakeGenAIImage = (_prompt: string): Promise<OffscreenCanvas> => {
+  return new Promise((resolve) => {
+    window.setTimeout(() => {
+      resolve(new OffscreenCanvas(Settings.stablediffusion.width, Settings.stablediffusion.height));
+    }, 4000);
+  })
+}
 
 export const loadGenAIImage = (prompt: string): Promise<OffscreenCanvas> => {
   return new Promise((resolve, _reject) => {

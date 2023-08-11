@@ -23,7 +23,7 @@ export class App extends LitElement {
   static override styles = [appStyles, transitionStyles, animations];
 
   @property( {attribute: true, reflect: true})
-  protected state?: string;
+  protected state = 'attract';
 
   @property( {attribute: true, reflect: true})
   protected transition?: string;
@@ -162,7 +162,10 @@ export class App extends LitElement {
     switch (this.stateMachine.currentState.id) {
       case 'attract':
         if (action === 'up') {
-          this.stateMachine.next();
+          this.promptInput?.trigger(action);
+        }
+        if (action === 'down') {
+          this.promptInput?.trigger(action);
         }
         break;
 
@@ -227,11 +230,13 @@ export class App extends LitElement {
   }
 
   async onPrompt(event: PromptEvent) {
-    if (!event.prompt) {
+    if (!event.prompt && this.stateMachine.currentState.id === 'prompt') {
       await this.stateMachine.goNamedState('inputerror');
-    } else {
-      this.stateMachine.currentPrompt = event.prompt as string;
+    } else if (!event.prompt && this.stateMachine.currentState.id === 'attract') {
       await this.stateMachine.next();
+    } else if (event.prompt) {
+      this.stateMachine.currentPrompt = event.prompt as string;
+      await this.stateMachine.goNamedState('validate');
     }
   }
 
@@ -287,6 +292,10 @@ export class App extends LitElement {
         this.onTrigger('up');
       }
 
+      if (event.key === 'v') {
+        this.stateMachine.goNamedState('videotesting')
+      }
+
       if (event.key === 'c' && this.video?.videoElement && this.lastMask) {
         // Debug one time render to download
         const samplePrompt = 'cats in space who wear pajama pants and sleep all night while partying during the day';
@@ -329,6 +338,7 @@ export class App extends LitElement {
 
       ${state.useCountdown ? html`<replaceyou-countdown-timer 
         seconds=${state.useCountdown} 
+        prompt=${this.stateMachine.currentPrompt}
         message=${state.countdownMessage}
         @onUpdate=${this.onUpdateCountdownTimer}
         @onComplete=${this.onCountdownComplete}></replaceyou-countdown-timer>` : undefined}
@@ -340,8 +350,12 @@ export class App extends LitElement {
         </div>
         <div id="logo2">
           <img src="/assets/logo.png">
-          <span>&nbsp;</span>
         </div>` : undefined}
+      
+      ${state.id === 'generate' ? html`
+      <div id="center-messaging">
+        <span>Loading...</span>
+      </div>`: undefined}
       
       <div id="status" ?hide=${!state.showStatus}>
         <span>${unsafeHTML(state.getStatusMessage())}</span>

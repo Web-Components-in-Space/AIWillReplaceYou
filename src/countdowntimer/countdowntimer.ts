@@ -31,6 +31,10 @@ export class CountDownTimer extends LitElement {
       color: white;
       margin-bottom: 100px;
     }
+
+    span.prompt-text {
+      color: rgb(255,0,236);
+    }
   `;
 
   @property({ attribute: true, reflect: true })
@@ -38,6 +42,9 @@ export class CountDownTimer extends LitElement {
 
   @property({ attribute: true, reflect: true })
   public message?: string;
+
+  @property({ attribute: true, reflect: true })
+  public prompt?: string;
 
   @property()
   public currentTime = -1;
@@ -71,7 +78,7 @@ export class CountDownTimer extends LitElement {
   override render() {
     if (this.currentTime >= 0) {
       return html`<span id="timer">${this.currentTime}</span>
-                <span id="message">${unsafeHTML(this.message)}</span>`;
+                <span id="message"><span class="prompt-text">${this.prompt}</span><br />${unsafeHTML(this.message)}</span>`;
     } else {
       return undefined;
     }

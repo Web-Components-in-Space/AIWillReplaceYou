@@ -84,13 +84,13 @@ export class StateMachine {
     {
       name: 'attract',
       id: 'attract',
-      inputPromptActive: false,
+      inputPromptActive: true,
       segmentationActive: false,
       hideVideo: false,
       showStatus: true,
       useCountdown: false,
-      getStatusMessage: () => { return `${this.currentFilename ? `Find the last photo at <span class="prompt-text">www.aiwillreplaceu.com/${this.currentFilename}</span>` :
-          `Photos will be available at <span class="prompt-text">www.aiwillreplaceu.com</span>`}`; }
+      getStatusMessage: () => { return `${this.currentFilename ? `Find the last photo at <br /><span class="prompt-text">www.aiwillreplaceu.com with code ${this.currentFilename}</span>` :
+          `Your photo will be available at <span class="prompt-text">www.aiwillreplaceu.com</span>`}`; }
     },
     {
       name: 'prompt input',
@@ -104,7 +104,7 @@ export class StateMachine {
       silentTimerAction: () => {
         this.goNamedState('attract');
       },
-      getStatusMessage: () => { return 'AI Should Replace U with...<br /><span class="prompt-text">...</span>'; }
+      getStatusMessage: () => { return '...and then <span class="prompt-text">AI Will Replace U</span> with<br />your spoken generative AI prompt'; }
     },
     {
       name: 'validate input',
@@ -113,8 +113,8 @@ export class StateMachine {
       segmentationActive: false,
       hideVideo: false,
       showStatus: true,
-      useCountdown: 10,
-      countdownMessage: "Is this what should replace U? <br />If not, press the button again to restart...",
+      useCountdown: 5,
+      countdownMessage: `Is this what should replace U? <br />If not, press the button again to restart...`,
       getStatusMessage: () => { return `AI Will Replace U with <br /><span class="prompt-text">${this.currentPrompt}</span>`; }
     },
     {
@@ -125,7 +125,7 @@ export class StateMachine {
       hideVideo: true,
       showStatus: true,
       useCountdown: false,
-      getStatusMessage: () => { return `AI is generating <br /><span class="prompt-text">${this.currentPrompt}</span> to replace U`; }
+      getStatusMessage: () => { return `AI is <i>thinking really hard</i> to generate <br /><span class="prompt-text">${this.currentPrompt}</span> and replace U`; }
     },
     {
       name: 'countdowntimer pose',
@@ -134,8 +134,8 @@ export class StateMachine {
       segmentationActive: true,
       hideVideo: true,
       showStatus: true,
-      useCountdown: 10,
-      getStatusMessage: () => { return `Pose to snap your photo ${this.countdownSeconds ? `in <span class="prompt-text">${this.countdownSeconds}</span> seconds` : ''}` }
+      useCountdown: 5,
+      getStatusMessage: () => { return `You have been replaced with <span class="prompt-text">${this.currentPrompt}</span>!<br />Now pose to have your picture taken ${this.countdownSeconds ? `in <span class="prompt-text">${this.countdownSeconds}</span> seconds` : ''}` }
     },
     {
       name: 'show output',
@@ -149,7 +149,7 @@ export class StateMachine {
       silentTimerAction: () => {
         this.next();
       },
-      getStatusMessage: () => { return `Download at <span class="prompt-text">www.aiwillreplaceu.com/${this.currentFilename}</span>`; }
+      getStatusMessage: () => { return `Download at <span class="prompt-text">www.aiwillreplaceu.com with code ${this.currentFilename}</span>`; }
     },
     {
       name: 'end',
@@ -174,6 +174,16 @@ export class StateMachine {
           this.goNamedState('prompt');
       },
       getStatusMessage: () => { return "Sorry! I didn't hear you! <br />Be sure to press and hold the button while you are talking, and release when finished"; }
-    }
+    },
+    {
+      name: 'video testing',
+      id: 'videotesting',
+      inputPromptActive: false,
+      segmentationActive: true,
+      hideVideo: true,
+      showStatus: false,
+      useCountdown: false,
+      getStatusMessage: () => { return ''; }
+      }
   ];
 }

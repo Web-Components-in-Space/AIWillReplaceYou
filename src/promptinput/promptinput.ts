@@ -101,7 +101,7 @@ export class PromptInput extends LitElement {
     }
     this.speech.onresult = this.onSpeechResult.bind(this);
     this.speech.onend = () => {
-      const event = new PromptEvent(this.prompt as string);
+      const event = new PromptEvent(this.prompt || this.interimTranscript);
       this.dispatchEvent(event);
     }
 
